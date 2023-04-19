@@ -6,9 +6,10 @@
  * @flow strict-local
  */
 
-import React from 'react';
+import React, {useEffect, useCallback, useState} from 'react';
 import type {Node} from 'react';
 import {
+  FlatList,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -18,13 +19,9 @@ import {
   View,
 } from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+import {Colors, Header} from 'react-native/Libraries/NewAppScreen';
+
+import useFetch from './useFetch';
 
 const Section = ({children, title}): Node => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -54,6 +51,29 @@ const Section = ({children, title}): Node => {
 
 const App: () => Node = () => {
   const isDarkMode = useColorScheme() === 'dark';
+  const {getUsers} = useFetch();
+
+  const [userList, setUserList] = useState([]);
+
+  useEffect(() => {
+    getUsers().then(response => {
+      console.log('response', response);
+
+      if (response) {
+        setUserList(response);
+      }
+    });
+  }, [getUsers]);
+
+  const renderUserRow = useCallback(({item}) => {
+    console.log('item', item);
+
+    return (
+      <View>
+        <Text>{item.name}</Text>
+      </View>
+    );
+  }, []);
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
@@ -70,20 +90,11 @@ const App: () => Node = () => {
           style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
           }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.js</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
+          <FlatList
+            data={userList}
+            style={{flex: 1}}
+            renderItem={renderUserRow}
+          />
         </View>
       </ScrollView>
     </SafeAreaView>
