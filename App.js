@@ -63,7 +63,8 @@ const App: () => Node = () => {
         setUserList(response);
       }
     });
-  }, [getUsers]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const renderUserRow = useCallback(({item}) => {
     console.log('item', item);
